@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Factory layout agent</title>
+<script>
+  if (new URLSearchParams(location.search).has("embed")) document.documentElement.classList.add("embed");
+</script>
+<style>
+  :root { --bg:#224A41; --panel:#1C3B34; --panel2:#183530; --line:#32645B; --ink:#EFF5F3; --muted:#B9CFC7;
+          --dim:#86A79C; --accent:#BBD96D; --mint:#70CD96; --bad:#FF6B6B; --mono:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  body { padding:32px; max-width:1360px; margin:0 auto; }
+  html.embed body { padding:20px; }
+  html.embed .hdr { display:none; }
+  h1 { font-size:28px; margin:0 0 4px; letter-spacing:-.4px; }
+  .sub { color:var(--muted); margin:0 0 20px; max-width:760px; }
+  .mono { font-family:var(--mono); }
+  .eyebrow { font:500 11px var(--mono); text-transform:uppercase; letter-spacing:.08em; color:var(--dim); }
+  .ask { display:flex; gap:10px; }
+  .ask input { flex:1; min-width:0; background:var(--panel); border:1px solid var(--line); color:var(--ink); border-radius:6px;
+               padding:12px 14px; font:15px system-ui,sans-serif; }
+  .ask input:focus { outline:2px solid var(--mint); outline-offset:1px; }
+  button { font:600 12px var(--mono); text-transform:uppercase; letter-spacing:.06em; border:0; border-radius:20px;
+           background:var(--accent); color:var(--bg); padding:0 20px; cursor:pointer; white-space:nowrap; }
+  button:disabled { opacity:.5; cursor:default; }
+  button.ghost { background:transparent; color:var(--muted); border:1px solid var(--line); }
+  .row2 { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:12px 0 18px; }
+  .chip { background:transparent; color:var(--muted); border:1px solid var(--line); padding:6px 12px; border-radius:16px;
+          font:500 11px var(--mono); text-transform:uppercase; letter-spacing:.06em; }
+  .chip:hover { color:var(--ink); border-color:var(--mint); }
+  .mode { margin-left:auto; font:500 11px var(--mono); text-transform:uppercase; letter-spacing:.06em; color:var(--dim); }
+  .mode b { color:var(--accent); font-weight:500; }
+  .grid { display:grid; grid-template-columns:minmax(0,1.75fr) minmax(0,1fr); gap:16px; align-items:start; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:6px; }
+  .card > .head { display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid var(--line); }
+  .tabs { display:flex; gap:6px; flex-wrap:wrap; }
+  .tab { background:transparent; border:1px solid var(--line); color:var(--muted); padding:4px 10px; border-radius:14px;
+         font:500 11px var(--mono); letter-spacing:.04em; text-transform:none; }
+  .tab.on { border-color:var(--ink); color:var(--ink); }
+  .tab .x { color:var(--bad); } .tab .ok { color:var(--accent); }
+  .plan { padding:10px; }
+  .plan svg { display:block; width:100%; height:auto; }
+  .legend { display:flex; flex-wrap:wrap; gap:6px 14px; padding:0 14px 12px; font:11px var(--mono); color:var(--dim); }
+  .legend i { display:inline-block; width:11px; height:11px; border-radius:2px; margin-right:5px; vertical-align:-1px; }
+  .side { display:flex; flex-direction:column; gap:16px; }
+  .verdict { padding:14px; }
+  .badge { display:inline-flex; align-items:center; gap:8px; font:600 12px var(--mono); text-transform:uppercase; letter-spacing:.06em;
+           padding:6px 12px; border-radius:16px; }
+  .badge.ok { background:var(--accent); color:var(--bg); }
+  .badge.bad { background:rgba(255,107,107,.15); color:var(--bad); border:1px solid rgba(255,107,107,.5); }
+  .badge.idle { color:var(--dim); border:1px solid var(--line); }
+  table { width:100%; border-collapse:collapse; margin-top:12px; font-size:13px; }
+  td { padding:4px 0; border-bottom:1px solid rgba(50,100,91,.5); }
+  td.n { text-align:right; font-family:var(--mono); font-size:12px; color:var(--muted); white-space:nowrap; }
+  td.n .x { color:var(--bad); } td.n .ok { color:var(--mint); }
+  ul.viol { margin:12px 0 0; padding:0; list-style:none; font-size:13px; }
+  ul.viol li { padding:5px 0 5px 12px; border-left:2px solid var(--bad); margin-bottom:6px; color:var(--ink); }
+  .fix { margin-top:10px; font-size:13px; color:var(--accent); }
+  .foot { margin-top:12px; font:11px var(--mono); color:var(--dim); }
+  .feed { padding:12px 14px; max-height:520px; overflow:auto; font-size:13px; }
+  .feed .it { margin-bottom:10px; }
+  .feed .think { color:var(--muted); font-style:italic; white-space:pre-wrap; border-left:2px solid var(--line); padding-left:10px; }
+  .feed .think.live::after { content:"▍"; color:var(--mint); font-style:normal; }
+  .feed .txt { white-space:pre-wrap; }
+  .feed .tool { font:12px var(--mono); color:var(--mint); }
+  .feed .tool span { color:var(--dim); }
+  .feed .v { font:12px var(--mono); }
+  .feed .v.x { color:var(--bad); } .feed .v.ok { color:var(--accent); }
+  .feed .err { color:var(--bad); }
+  .feed .final { background:var(--panel2); border:1px solid var(--line); border-radius:6px; padding:10px 12px; white-space:pre-wrap; }
+  .feed .stats { font:11px var(--mono); color:var(--dim); margin-top:6px; }
+  .empty { color:var(--dim); font-size:13px; }
+  @media (max-width: 900px) { body { padding:16px; } html.embed body { padding:12px; } .grid { grid-template-columns:1fr; }
+    .mode { margin-left:0; width:100%; } .ask { flex-direction:column; } .ask button { padding:12px 20px; } .feed { max-height:420px; } }
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="eyebrow">Chalk demo</div>
+  <h1>Factory layout agent</h1>
+  <p class="sub">Describe a product. Claude designs the production line and places every machine on the floor; a constraint
+    solver (OR-Tools CP-SAT) checks each layout against the building's rules and sends back what is wrong until it is valid.</p>
+</div>
+
+<form class="ask" id="ask">
+  <input id="prompt" maxlength="300" autocomplete="off" aria-label="What should the line make?"
+         value="Set up a manufacturing line for a chalkboard.">
+  <button id="go" type="submit">Design the line</button>
+  <button id="stop" type="button" class="ghost" hidden>Stop</button>
+</form>
+<div class="row2" id="presets">
+  <span class="eyebrow">Try</span>
+  <span class="mode" id="mode"></span>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <div class="head"><span class="eyebrow">Floor plan</span><div class="tabs" id="tabs"></div></div>
+    <div class="plan" id="plan"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+  <div class="side">
+    <div class="card">
+      <div class="head"><span class="eyebrow">Constraint solver</span></div>
+      <div class="verdict" id="verdict"><span class="badge idle">Waiting for a layout</span></div>
+    </div>
+    <div class="card">
+      <div class="head"><span class="eyebrow">Agent</span><span class="eyebrow" id="model" style="margin-left:auto"></span></div>
+      <div class="feed" id="feed"><div class="empty">Loading…</div></div>
+    </div>
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
