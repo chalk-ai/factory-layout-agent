@@ -52,7 +52,7 @@ def _client() -> anthropic.Anthropic:
     return anthropic.Anthropic(
         base_url=ROUTER_BASE_URL,
         api_key=os.environ["ROUTER_API_KEY"],
-        default_headers={"X-Chalk-Env-Id": os.environ["CHALK_ENVIRONMENT_ID"]},
+        default_headers={"X-Chalk-Env-Id": os.environ["CHALK_ENVIRONMENT"]},
         timeout=180.0,
     )
 

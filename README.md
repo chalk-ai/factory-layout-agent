@@ -26,12 +26,11 @@ the Chalk model gateway. Live demo: <https://chalk.ai/demos/factory-layout-agent
 chalk login                   # or export CHALK_CLIENT_ID / CHALK_CLIENT_SECRET
 chalk router status           # the environment needs the model gateway enabled
 chalk router api-key create   # store the key as the Chalk secret CHALK_ROUTER_API_KEY
-./deploy.py                   # prints web_url
+./deploy.py # prints web_url
 ./example.py https://<web_url> "Set up a manufacturing line for a chalkboard."
 ```
 
-`deploy.py` takes `--model` (default `anthropic/claude-opus-5-5`), `--effort` (default `medium`;
-the hosted demo runs `low`), `--env-id` and `--key-secret`.
+`deploy.py` uses the model, effort, and secret name shown directly in the example.
 
 To check a layout you wrote yourself, without the model:
 
@@ -119,3 +118,10 @@ A cold deploy took 60 s; redeploying changed app files took a few seconds.
 ## License
 
 Apache-2.0. See `LICENSE`.
+
+## Local authentication
+
+The SDK reads credentials, API host, and the selected environment from your existing
+`chalk login` in `~/.chalk.yml`, including project-scoped and default logins.
+For unattended runs, `CHALK_CLIENT_ID` and `CHALK_CLIENT_SECRET` remain supported.
+The examples use the current environment selected by your Chalk login.
