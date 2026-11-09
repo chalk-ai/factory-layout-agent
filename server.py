@@ -43,6 +43,16 @@ MAX_PROMPT_CHARS = 300
 MAX_LAYOUT_BYTES = 64 * 1024
 
 app = FastAPI()
+
+
+# This host exists only to back a chalk.ai/demos page; keep it out of search results.
+@app.middleware("http")
+async def add_noindex_header(request, call_next):
+    response = await call_next(request)
+    response.headers["X-Robots-Tag"] = "noindex, nofollow"
+    return response
+
+
 _run_slots = asyncio.Semaphore(MAX_CONCURRENT_RUNS)
 _run_times: collections.deque[float] = collections.deque()
 _verify_times: collections.deque[float] = collections.deque()
